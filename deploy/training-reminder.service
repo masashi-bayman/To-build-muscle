@@ -1,0 +1,9 @@
+[Unit]
+Description=Training log reminder (Discord)
+
+[Service]
+Type=oneshot
+User=pi
+WorkingDirectory=/opt/training-log
+EnvironmentFile=/opt/training-log/reminder.env
+ExecStart=/usr/bin/python3 /opt/training-log/reminder.py

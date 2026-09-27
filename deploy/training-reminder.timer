@@ -1,0 +1,11 @@
+[Unit]
+Description=Nag about unfinished training every 30 min in the evening
+
+[Timer]
+# 19:00〜23:00 の毎時0分・30分。好きな時間帯に変えてください
+OnCalendar=*-*-* 19..22:00,30:00
+OnCalendar=*-*-* 23:00:00
+Persistent=false
+
+[Install]
+WantedBy=timers.target

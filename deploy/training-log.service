@@ -1,0 +1,13 @@
+[Unit]
+Description=Training log API
+After=network.target
+
+[Service]
+User=pi
+WorkingDirectory=/opt/training-log
+ExecStart=/usr/bin/python3 /opt/training-log/server.py
+Environment=TL_PORT=8765
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

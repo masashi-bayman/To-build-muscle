@@ -1,0 +1,5 @@
+# 実データと秘密情報はリポジトリに入れない
+data/
+reminder.env
+__pycache__/
+*.pyc
