@@ -30,7 +30,9 @@ sudo systemctl daemon-reload
 sudo systemctl enable --now training-log
 curl -s localhost:8765/api/days   # {} が返ればOK
 
-# nginx（deploy/nginx-training.conf の location 2つを既存 server {} に追記）
+# nginx（設定は snippet にして、既存サイトの server {} から include する）
+sudo cp /opt/training-log/deploy/nginx-training.conf /etc/nginx/snippets/training.conf
+sudo vi /etc/nginx/sites-enabled/<既存サイト>   # server { の中に  include snippets/training.conf;  を追加
 sudo nginx -t && sudo systemctl reload nginx
 ```
 
@@ -51,7 +53,7 @@ sudo systemctl restart training-log   # server.py を変えたときだけ
 ```bash
 cp /opt/training-log/deploy/reminder.env.example /opt/training-log/reminder.env
 chmod 600 /opt/training-log/reminder.env
-vi /opt/training-log/reminder.env        # Webhook URL・メンション・ページURL
+vi /opt/training-log/reminder.env   # Webhook URL・メンション・ページURL
 
 sudo cp /opt/training-log/deploy/training-reminder.{service,timer} /etc/systemd/system/
 sudo systemctl daemon-reload
