@@ -5,13 +5,16 @@ PUT  /api/days/YYYY-MM-DD -> その日の記録を上書き保存
 nginx から 127.0.0.1:8765 にリバースプロキシして使う想定。
 """
 import json, os, re, sqlite3, threading
-from datetime import datetime
+from datetime import date as Date, datetime, timedelta
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 DB_PATH = os.environ.get("TL_DB", os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "training.db"))
 HOST = os.environ.get("TL_HOST", "127.0.0.1")
 PORT = int(os.environ.get("TL_PORT", "8765"))
 MAX_BODY = 64 * 1024
+# 書き込める日付の範囲（外部公開時にゴミ書き込みでディスクを埋められないよう制限）
+PAST_DAYS = int(os.environ.get("TL_PAST_DAYS", "366"))
+FUTURE_DAYS = int(os.environ.get("TL_FUTURE_DAYS", "31"))
 DATE_RE = re.compile(r"^/api/days/(\d{4}-\d{2}-\d{2})$")
 lock = threading.Lock()
 
@@ -46,7 +49,10 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(404, {"error": "not found"})
         date = m.group(1)
         try:
-            datetime.strptime(date, "%Y-%m-%d")
+            d = datetime.strptime(date, "%Y-%m-%d").date()
+            today = Date.today()
+            if not (today - timedelta(days=PAST_DAYS) <= d <= today + timedelta(days=FUTURE_DAYS)):
+                return self._send(403, {"error": "date out of range"})
             n = int(self.headers.get("Content-Length", "0"))
             if n <= 0 or n > MAX_BODY:
                 return self._send(413, {"error": "body size"})

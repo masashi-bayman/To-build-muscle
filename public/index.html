@@ -184,13 +184,16 @@ function setStatus(t){ document.getElementById("status").textContent=t; }
 
 async function push(s){
   const r = await fetch(API+"/"+s, {method:"PUT", headers:{"Content-Type":"application/json"}, body:JSON.stringify(days[s])});
+  if(r.status===403) return false;  // 保存できる期間外の日付。送信をあきらめる（端末には残る）
   if(!r.ok) throw new Error("HTTP "+r.status);
+  return true;
 }
 async function flush(){
+  let skipped=null;
   for(const s of [...dirty]){
-    try{ await push(s); dirty.delete(s); }catch(e){ saveLocal(); setStatus("サーバーに届きませんでした。端末に保存済みで、次回自動で送ります"); return; }
+    try{ if(!await push(s)) skipped=s; dirty.delete(s); }catch(e){ saveLocal(); setStatus("サーバーに届きませんでした。端末に保存済みで、次回自動で送ります"); return; }
   }
-  saveLocal(); setStatus("保存しました");
+  saveLocal(); setStatus(skipped? skipped+" は保存期間外のため端末にだけ保存しました" : "保存しました");
 }
 function save(s){
   dirty.add(s); saveLocal(); setStatus("保存中…");

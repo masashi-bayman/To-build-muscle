@@ -86,6 +86,9 @@ systemctl list-timers training-reminder.timer
 記録APIには認証がありません。Cloudflare Tunnel で外に出す場合は、
 `/training/` を Cloudflare Zero Trust Access（メール認証など）の対象にしてください。
 
+外部公開してもディスクをゴミで埋められないよう、サーバーが受け付ける日付は
+「1年前〜1か月先」に制限しています（`TL_PAST_DAYS` / `TL_FUTURE_DAYS` で変更可）。
+
 ## バックアップ
 
 `data/training.db` をコピーするだけです。ページ下部の「CSVを書き出す」でも取り出せます。
